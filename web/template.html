@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iReal Studio — make iReal Pro charts</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: rgb(27,39,48); color: rgb(230,227,218);
+         font-family: -apple-system, Helvetica, Arial, sans-serif; line-height: 1.5; }
+  header { padding: 1.2rem 1.5rem 0.4rem; }
+  h1 { margin: 0; font-size: 1.5rem; }
+  .tag { color: #94d5ff; font-size: 0.9rem; }
+  main { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 1rem 1.5rem 3rem; max-width: 78rem; margin: 0 auto; }
+  @media (max-width: 800px){ main { grid-template-columns: 1fr; } }
+  .panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+           border-radius: 12px; padding: 1rem 1.2rem; }
+  label { display: block; font-size: 0.8rem; color: #9fb3bd; margin: 0.6rem 0 0.2rem; }
+  input, select, textarea, button { font: inherit; }
+  input, select, textarea { width: 100%; padding: 0.5rem 0.6rem; border-radius: 8px;
+           border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.25); color: inherit; }
+  textarea { min-height: 14rem; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.95rem; white-space: pre; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6rem; }
+  .btns { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
+  button { cursor: pointer; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06);
+           color: inherit; padding: 0.55rem 0.9rem; border-radius: 8px; }
+  button.primary { background: #1f6fb2; border-color: #1f6fb2; color: #fff; font-weight: 600; }
+  button:hover { filter: brightness(1.12); }
+  a.import { display: inline-block; background: #1f6fb2; color: #fff !important; text-decoration: none;
+             padding: 0.6rem 1rem; border-radius: 8px; font-weight: 600; }
+  pre { background: rgba(0,0,0,0.3); padding: 0.8rem; border-radius: 8px; overflow-x: auto;
+        color: #cfe8d6; font-size: 0.9rem; }
+  .muted { color: #9fb3bd; font-size: 0.85rem; }
+  .warn { color: #e9c46a; font-size: 0.85rem; }
+  details { margin-top: 0.8rem; }
+  summary { cursor: pointer; color: #94d5ff; }
+  .onescale { background: rgba(148,213,255,0.08); border-left: 3px solid #94d5ff; padding: 0.5rem 0.8rem;
+              border-radius: 4px; margin: 0.5rem 0; }
+  table.analysis { border-collapse: collapse; width: 100%; margin-top: 0.5rem; font-size: 0.9rem; }
+  table.analysis th, table.analysis td { text-align: left; padding: 0.35rem 0.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+  table.analysis th { color: #9fb3bd; font-weight: normal; }
+  table.analysis tr.borrowed td { background: rgba(233,211,191,0.08); }
+  .badge { font-size: 0.7rem; text-transform: uppercase; padding: 0.1rem 0.45rem; border-radius: 999px; }
+  .mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+  ul.plan { padding-left: 1.1rem; } ul.plan li { margin: 0.25rem 0; }
+  h3 { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.3rem; }
+  footer { color: #9fb3bd; font-size: 0.8rem; padding: 0 1.5rem 2rem; max-width: 78rem; margin: 0 auto; }
+  code { background: rgba(0,0,0,0.3); padding: 0.05rem 0.3rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>iReal Studio</h1>
+  <div class="tag">Make iReal Pro chord charts — 4 bars per line. No install, no internet needed.</div>
+</header>
+<main>
+  <section class="panel">
+    <div class="row">
+      <div><label>Title</label><input id="title" value="Blue Bossa"></div>
+      <div><label>Composer</label><input id="composer" value="Kenny Dorham"></div>
+    </div>
+    <div class="row3">
+      <div><label>Key</label><select id="key"></select></div>
+      <div><label>Style</label><select id="style"></select></div>
+      <div><label>BPM</label><input id="bpm" type="number" value="150"></div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Band? keep composer as-is</label>
+        <select id="reorder"><option value="reorder">Person — sort by last name</option><option value="asis">Band — keep verbatim</option></select>
+      </div>
+      <div><label>Bars per line</label><select id="mpl"><option>4</option><option>2</option><option>8</option></select></div>
+    </div>
+
+    <label>Chords — bars split by <code>|</code>, sections like <code>[A]</code></label>
+    <textarea id="chords">[A]
+C-7 | F7 | Bb^7 | Eb^7
+A-7b5 | D7 | G-6 | G-6
+[B]
+A-7b5 | D7 | G-6 | G-6
+C-7 | F7 | Bb^7 | Bb^7</textarea>
+
+    <div class="btns">
+      <button id="build" class="primary">Make chart</button>
+      <button id="ex1">Example: jazz</button>
+      <button id="ex2">Example: rock</button>
+      <button id="help">Chord help</button>
+    </div>
+    <div id="help-box" class="muted" style="display:none; margin-top:0.6rem"></div>
+  </section>
+
+  <section class="panel">
+    <div id="actions" style="display:none">
+      <a id="open" class="import" href="#">Open in iReal Pro &raquo;</a>
+      <button id="copy">Copy link</button>
+      <button id="download">Download chart (.html)</button>
+      <div class="muted" style="margin-top:0.4rem">Tap “Open in iReal Pro” on a device that has the app installed (iPhone/iPad).</div>
+    </div>
+    <div id="warnings"></div>
+    <h3>Layout preview</h3>
+    <pre id="preview">Fill in the chords and press “Make chart”.</pre>
+    <div id="analysis"></div>
+    <details>
+      <summary>Advanced: links &amp; raw progression</summary>
+      <div class="muted" style="margin-top:0.5rem">Modern link (recommended):</div>
+      <pre id="urlb" style="white-space:pre-wrap; word-break:break-all"></pre>
+      <div class="muted">Legacy link:</div>
+      <pre id="urlbook" style="white-space:pre-wrap; word-break:break-all"></pre>
+      <div class="muted">Raw iReal progression:</div>
+      <pre id="raw" style="white-space:pre-wrap; word-break:break-all"></pre>
+    </details>
+  </section>
+</main>
+<footer>
+  iReal Studio runs entirely in your browser — your charts never leave this page. Save this file anywhere and open it offline.
+</footer>
+
+<script>/*__ENGINE__*/</script>
+<script>
+(function(){
+  var R = globalThis.iReal;
+  var $ = function(id){ return document.getElementById(id); };
+
+  // Populate dropdowns.
+  R.keys.forEach(function(k){ var o=document.createElement("option"); o.value=k; o.textContent=k; $("key").appendChild(o); });
+  $("key").value = "C-";
+  ["jazz","latin","pop"].forEach(function(group){
+    var og = document.createElement("optgroup"); og.label = group[0].toUpperCase()+group.slice(1);
+    R.styles[group].forEach(function(s){ var o=document.createElement("option"); o.value=s; o.textContent=s; og.appendChild(o); });
+    $("style").appendChild(og);
+  });
+  $("style").value = "Bossa Nova";
+
+  var lastResult = null;
+
+  function buildNow(){
+    try {
+      var chart = {
+        title: $("title").value || "Untitled",
+        composer: $("composer").value || undefined,
+        reorderComposer: $("reorder").value === "reorder",
+        key: $("key").value,
+        style: $("style").value,
+        bpm: Number($("bpm").value) || undefined,
+        measuresPerLine: Number($("mpl").value) || 4,
+        measures: R.parseTextChart($("chords").value),
+      };
+      var result = R.buildChart(chart);
+      var analysis = R.analyzeChart(chart);
+      lastResult = { chart: chart, result: result };
+
+      $("actions").style.display = "block";
+      $("open").href = result.irealbUrl;
+      $("preview").textContent = result.asciiPreview;
+      $("analysis").innerHTML = R.analysisHtml(analysis);
+      $("urlb").textContent = result.irealbUrl;
+      $("urlbook").textContent = result.irealbookUrl;
+      $("raw").textContent = result.progression;
+
+      $("warnings").innerHTML = result.warnings.length
+        ? '<div class="warn">' + result.warnings.map(function(w){return "⚠ "+w.replace(/</g,"&lt;");}).join("<br>") + "</div>"
+        : "";
+    } catch (e) {
+      $("warnings").innerHTML = '<div class="warn">Error: ' + String(e && e.message || e).replace(/</g,"&lt;") + "</div>";
+    }
+  }
+
+  $("build").addEventListener("click", buildNow);
+
+  $("copy").addEventListener("click", function(){
+    if (!lastResult) return;
+    navigator.clipboard.writeText(lastResult.result.irealbUrl).then(function(){
+      $("copy").textContent = "Copied!"; setTimeout(function(){ $("copy").textContent = "Copy link"; }, 1200);
+    });
+  });
+
+  $("download").addEventListener("click", function(){
+    if (!lastResult) return;
+    var blob = new Blob([lastResult.result.html], { type: "text/html" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = (lastResult.chart.title || "chart").replace(/[^a-z0-9]+/gi,"-").toLowerCase() + ".html";
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  $("ex1").addEventListener("click", function(){
+    $("title").value="Blue Bossa"; $("composer").value="Kenny Dorham"; $("reorder").value="reorder";
+    $("key").value="C-"; $("style").value="Bossa Nova"; $("bpm").value="150";
+    $("chords").value="[A]\nC-7 | F7 | Bb^7 | Eb^7\nA-7b5 | D7 | G-6 | G-6\n[B]\nA-7b5 | D7 | G-6 | G-6\nC-7 | F7 | Bb^7 | Bb^7";
+    buildNow();
+  });
+  $("ex2").addEventListener("click", function(){
+    $("title").value="Riff Tune"; $("composer").value="The Band"; $("reorder").value="asis";
+    $("key").value="E-"; $("style").value="Rock"; $("bpm").value="140";
+    $("chords").value="[A]\nE-7 | E-7 | G | D\nE-7 | E-7 | C | D\n[B]\nC | D | E-7 | E-7";
+    buildNow();
+  });
+  $("help").addEventListener("click", function(){
+    var h = $("help-box");
+    if (h.style.display==="none"){
+      h.innerHTML = "Chords: root + quality + optional /bass. Examples: <code>C</code>, <code>C-7</code> (min7), "
+        + "<code>C^7</code> (maj7), <code>C7b9</code>, <code>C-7/Bb</code>. Minor key = add <code>-</code> (e.g. <code>G-</code>). "
+        + "Qualities include: " + R.qualities.slice(0,40).join(", ") + " …<br>Sections: <code>[A] [B] [Verse] [Intro]</code>. "
+        + "Repeat: <code>{ C-7 | F7 } x4</code>. No chord: <code>n</code>. ";
+      h.style.display="block";
+    } else h.style.display="none";
+  });
+
+  buildNow();
+})();
+</script>
+</body>
+</html>

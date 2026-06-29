@@ -1,0 +1,46 @@
+{
+  "name": "ireal-mcp",
+  "version": "0.1.0",
+  "description": "MCP server that builds piano-friendly iReal Pro chord charts (4 measures per line).",
+  "type": "module",
+  "bin": {
+    "ireal-mcp": "dist/index.js",
+    "ireal-mcp-serve": "dist/serve.js"
+  },
+  "files": [
+    "dist",
+    "scripts"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "serve": "node dist/serve.js",
+    "dev:serve": "tsx src/serve.ts",
+    "build:web": "node scripts/build-web.mjs",
+    "install-service": "node scripts/gen-launchd.mjs --install",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "mcp",
+    "ireal-pro",
+    "irealpro",
+    "chord-chart",
+    "lead-sheet",
+    "jazz",
+    "piano"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
