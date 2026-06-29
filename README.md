@@ -16,12 +16,40 @@ iReal Pro lays a chart out as a grid of **16 cells per line**; a chord or a spac
 
 This server makes the layout deterministic: **every measure is padded to exactly `16 / measuresPerLine` cells** (4 cells with the default 4 measures/line), so the app always wraps where you expect. The result reads like a clean fake-book page. You can change the density with `measuresPerLine` (must divide 16: `1, 2, 4, 8, 16`).
 
-## Install
+## Install the MCP server (Mac / Windows / Linux, any MCP client)
+
+The server is plain Node + stdio + the official MCP SDK, so it runs anywhere Node runs and works with any MCP client that supports stdio servers (Claude Code, Claude Desktop, Cursor, Windsurf, …).
+
+**Once published to npm** (see "Publishing" below), no clone or build is needed — point any client at `npx`. This config is identical on every OS:
+
+```json
+{
+  "mcpServers": {
+    "ireal": { "command": "npx", "args": ["-y", "ireal-mcp"] }
+  }
+}
+```
+
+Claude Code: `claude mcp add ireal npx -y ireal-mcp`
+
+**From source** (until it's on npm) — same on all three OSes:
 
 ```bash
-npm install
-npm run build
+git clone <repo> && cd ireal-mcp
+npm install            # runs the build automatically (prepare script)
 ```
+
+Then point your client at the absolute path:
+
+```json
+{ "mcpServers": { "ireal": { "command": "node", "args": ["/abs/path/ireal-mcp/dist/index.js"] } } }
+```
+
+> **Mac shortcut:** double-click `setup.command` — it installs, builds, and prints the exact config. (Windows/Linux: use the `git clone` steps above; a one-click installer for those is a TODO. The optional always-on LAN server's auto-start is currently Mac-only via launchd — on Windows/Linux run `npm run serve` manually, or wire it to Task Scheduler / systemd.)
+
+## Publishing (to enable `npx` install everywhere)
+
+`npm publish` ships the built `dist/` (the `prepare` script builds it; `prepublishOnly` runs typecheck + tests first). After that, anyone on any OS installs via the `npx` config above — no clone, no build.
 
 ## Serve over your network
 

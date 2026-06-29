@@ -11,6 +11,9 @@
     "dist",
     "scripts"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
@@ -21,7 +24,9 @@
     "install-service": "node scripts/gen-launchd.mjs --install",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare": "tsc",
+    "prepublishOnly": "tsc --noEmit && vitest run"
   },
   "keywords": [
     "mcp",
