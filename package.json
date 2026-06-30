@@ -28,6 +28,15 @@
     "prepare": "tsc",
     "prepublishOnly": "tsc --noEmit && vitest run"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seajaysec/ireal-mcp.git"
+  },
+  "homepage": "https://github.com/seajaysec/ireal-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/seajaysec/ireal-mcp/issues"
+  },
+  "author": "Chris Farrell",
   "keywords": [
     "mcp",
     "ireal-pro",
