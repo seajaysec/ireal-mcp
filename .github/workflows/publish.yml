@@ -1,0 +1,32 @@
+name: Publish to npm
+
+# Token-free publishing via npm Trusted Publishing (OIDC). After the first
+# manual publish, configure this repo+workflow as a Trusted Publisher at
+# npmjs.com -> the package -> Settings -> Trusted Publisher. Then every GitHub
+# Release (or a manual run) publishes with provenance and no npm token.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # required for OIDC trusted publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+      - run: npm install -g npm@latest # trusted publishing needs npm >= 11.5.1
+      - run: npm ci
+      # Uses the NPM_TOKEN repo secret if set (a granular token with 2FA-bypass);
+      # once Trusted Publishing is configured on npm you can drop the secret and
+      # it publishes token-free via OIDC.
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
