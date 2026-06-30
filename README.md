@@ -30,7 +30,7 @@ The server is plain Node + stdio + the official MCP SDK, so it runs anywhere Nod
 }
 ```
 
-Claude Code: `claude mcp add ireal npx -y ireal-mcp`
+Claude Code: `claude mcp add ireal -- npx -y ireal-mcp` (the `--` is required so the flags go to npx, not to `claude`).
 
 **From source** (until it's on npm) — same on all three OSes:
 
@@ -44,6 +44,8 @@ Then point your client at the absolute path:
 ```json
 { "mcpServers": { "ireal": { "command": "node", "args": ["/abs/path/ireal-mcp/dist/index.js"] } } }
 ```
+
+Or via the CLI (note the `--` before the command): `claude mcp add ireal -- node /abs/path/ireal-mcp/dist/index.js`
 
 > **Mac shortcut:** double-click `setup.command` — it installs, builds, and prints the exact config. (Windows/Linux: use the `git clone` steps above; a one-click installer for those is a TODO. The optional always-on LAN server's auto-start is currently Mac-only via launchd — on Windows/Linux run `npm run serve` manually, or wire it to Task Scheduler / systemd.)
 

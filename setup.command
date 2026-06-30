@@ -57,7 +57,7 @@ echo '      }'
 echo '    }'
 echo '  }'
 echo ""
-echo "  (Claude Code: claude mcp add ireal node \"$DIST\")"
+echo "  (Claude Code: claude mcp add ireal -- node \"$DIST\")"
 echo ""
 
 # 5. Optional always-on LAN server.
